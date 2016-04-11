@@ -10,6 +10,7 @@ defmodule DotsServer.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases,
+     preferred_cli_env: [espec: :test],
      deps: deps]
   end
 
@@ -35,6 +36,7 @@ defmodule DotsServer.Mixfile do
      {:phoenix_ecto, "~> 2.0"},
      {:phoenix_html, "~> 2.4"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:espec, "~> 0.8.18", only: :test},
      {:gettext, "~> 0.9"},
      {:cowboy, "~> 1.0"}]
   end
