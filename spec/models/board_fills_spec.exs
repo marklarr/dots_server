@@ -1,4 +1,4 @@
-defmodule DotsServer.BoardFillsTest do
+defmodule DotsServer.BoardFillsSpec do
   use ESpec
   alias DotsServer.BoardFills
 

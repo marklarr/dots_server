@@ -1,4 +1,4 @@
-defmodule DotsServer.BoardLinesTest do
+defmodule DotsServer.BoardLinesSpec do
   use ESpec
   alias DotsServer.BoardLines
 

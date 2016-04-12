@@ -1,4 +1,4 @@
-defmodule DotsServer.GameBoardServiceTest do
+defmodule DotsServer.GameBoardServiceSpec do
   use ESpec
   alias DotsServer.GameBoardService
   alias DotsServer.GameBoard
