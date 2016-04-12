@@ -2,17 +2,17 @@ defmodule DotsServer.GameBoardService do
   alias DotsServer.GameBoard
 
   def create_board(size) do
-    attrs = %{board_lines: encode(init_board_lines(size)), board_fills: encode(init_board_fills(size))}
+    attrs = %{board_lines_data: encode(init_board_lines(size)), board_fills_data: encode(init_board_fills(size))}
     changeset = GameBoard.changeset(%GameBoard{}, attrs)
     DotsServer.Repo.insert!(changeset)
   end
 
   def board_lines(game_board) do
-    decode(game_board.board_lines)
+    decode(game_board.board_lines_data)
   end
 
   def board_fills(game_board) do
-    decode(game_board.board_fills)
+    decode(game_board.board_fills_data)
   end
 
   defp decode(board_array) do

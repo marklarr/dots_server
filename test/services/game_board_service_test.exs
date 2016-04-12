@@ -4,7 +4,7 @@ defmodule DotsServer.GameBoardServiceTest do
   alias DotsServer.GameBoard
 
   context "a simple board" do
-    let :valid_attrs, do: %{board_fills: Poison.encode!([[0, 1], [0, 1]]), board_lines: Poison.encode!([[1, 1], [1, 0]])}
+    let :valid_attrs, do: %{board_fills_data: Poison.encode!([[0, 1], [0, 1]]), board_lines_data: Poison.encode!([[1, 1], [1, 0]])}
     let :change_set, do: GameBoard.changeset(%GameBoard{}, valid_attrs)
     let :game_board, do: DotsServer.Repo.insert!(change_set)
 
@@ -46,7 +46,7 @@ defmodule DotsServer.GameBoardServiceTest do
                     [0, 0, 0, 0, 0, 0],
                   ]
 
-      game_board |> GameBoardService.board_fills
+      game_board |> GameBoardService.board_fills |> should(eq expected)
     end
   end
 end
