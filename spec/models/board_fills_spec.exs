@@ -31,28 +31,28 @@ defmodule DotsServer.BoardFillsSpec do
     it "fills the block if it exists" do
       expected = [
         [:empty, :empty, :empty],
-        [:empty, :filled, :empty],
-        [:empty, :empty, :empty]
+        [:empty, :empty, :empty],
+        [:empty, :filled, :empty]
       ]
 
       board_fills
-      |> BoardFills.fill_block({1, 1})
+      |> BoardFills.fill_block({1, 2})
       |> should(eq expected)
     end
 
     it "does not allow a block to be filled twice" do
       {:error, msg} = board_fills
-                      |> BoardFills.fill_block({1, 1})
-                      |> BoardFills.fill_block({1, 1})
+                      |> BoardFills.fill_block({1, 2})
+                      |> BoardFills.fill_block({1, 2})
 
-      msg |> should(eq "board_fills is already filled at origin_point (1, 1)")
+      msg |> should(eq "board_fills is already filled at origin_point {1, 2}")
     end
 
     it "does not allow a nonexistent block to be filled" do
       {:error, msg} = board_fills
                       |> BoardFills.fill_block({4, 4})
 
-      msg |> should(eq "board_fills does not contain origin_point (4, 4)")
+      msg |> should(eq "board_fills does not contain origin_point {4, 4}")
     end
   end
 end
