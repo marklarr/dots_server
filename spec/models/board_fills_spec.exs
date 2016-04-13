@@ -11,6 +11,18 @@ defmodule DotsServer.BoardFillsSpec do
     ]
   end
 
+  describe "new(board_size)" do
+    it "returns a new board_fills for a size x size board" do
+      expected = [
+        [:empty, :empty, :empty, :empty],
+        [:empty, :empty, :empty, :empty],
+        [:empty, :empty, :empty, :empty],
+        [:empty, :empty, :empty, :empty]
+      ]
+      BoardFills.new(5) |> should(eq expected)
+    end
+  end
+
   describe "parse(board_fills_data)" do
     it "returns a parsed board_fills object" do
       board_fills_data

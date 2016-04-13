@@ -2,7 +2,7 @@ defmodule DotsServer.BoardLinesSpec do
   use ESpec
   alias DotsServer.BoardLines
 
-  describe "new(size)" do
+  describe "new(board_size)" do
     it "returns a new board_lines for a size x size board" do
       expected = [
         [:unfilled_line, :unfilled_line, :unfilled_line, :unfilled_line],

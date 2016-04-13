@@ -4,6 +4,14 @@ defmodule DotsServer.BoardFills do
   @filled :filled
   @empty :empty
 
+  def new(board_size) do
+    Enum.map 1..(board_size - 1), fn(_row) ->
+      Enum.map 1..(board_size - 1), fn(_column) ->
+        :empty
+      end
+    end
+  end
+
   def parse(board_fills_data) do
     board_fills_data
     |> SinglyNestedList.parse

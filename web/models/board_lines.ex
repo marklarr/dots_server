@@ -7,9 +7,9 @@ defmodule DotsServer.BoardLines do
   @horizontal :horizontal
   @vertical :vertical
 
-  def new(size) do
-    Enum.map 1..((size * 2) -1 ), fn(row) ->
-      range = if Integer.is_odd(row), do: 1..(size-1), else: 1..size
+  def new(board_size) do
+    Enum.map 1..((board_size * 2) -1 ), fn(row) ->
+      range = if Integer.is_odd(row), do: 1..(board_size-1), else: 1..board_size
       Enum.map range, fn(_) -> @unfilled_line end
     end
   end
