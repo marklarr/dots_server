@@ -2,6 +2,7 @@ defmodule DotsServer.UserSpec do
   use ESpec
 
   alias DotsServer.User
+  use DotsServer.ConnCase
 
   describe "#changeset" do
     context "valid attributes" do
@@ -21,5 +22,10 @@ defmodule DotsServer.UserSpec do
       changeset = User.changeset(%User{}, invalid_attrs)
       changeset.valid? |> should(be_false)
     end
+  end
+
+  it "can factory" do
+    user = create(:user)
+    IO.puts(user.email)
   end
 end

@@ -24,6 +24,7 @@ defmodule DotsServer.ConnCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query, only: [from: 1, from: 2]
+      import DotsServer.Factory
 
       import DotsServer.Router.Helpers
 
