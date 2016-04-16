@@ -118,4 +118,18 @@ defmodule DotsServer.BoardLinesSpec do
       |> should(eq {:error, "line is to itself from {2, 2} to {2, 2}"})
     end
   end
+
+  describe "direction(from, to)" do
+    it "returns :horizontal when the two points share the same x value" do
+      BoardLines.line_direction({1, 1}, {1, 2}) |> should(eq :horizontal)
+    end
+
+    it "returns :vertical when the two points share the same y value" do
+      BoardLines.line_direction({3, 1}, {1, 1}) |> should(eq :vertical)
+    end
+
+    it "returns unknown when the line is neither vertical nor horizontal" do
+      BoardLines.line_direction({3, 1}, {1, 2}) |> should(eq :unknown)
+    end
+  end
 end

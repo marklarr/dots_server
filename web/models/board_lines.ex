@@ -2,9 +2,6 @@ defmodule DotsServer.BoardLines do
   require Integer
   alias DotsServer.SinglyNestedList
 
-  @horizontal :horizontal
-  @vertical :vertical
-
   def new(board_size) do
     Enum.map 1..((board_size * 2) -1 ), fn(row) ->
       range = if Integer.is_odd(row), do: 1..(board_size-1), else: 1..board_size
@@ -36,9 +33,9 @@ defmodule DotsServer.BoardLines do
 
   defp line_point(from, to) do
     case line_direction(from, to) do
-      @horizontal ->
+      :horizontal ->
         {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2 - 1}
-      @vertical ->
+      :vertical ->
         {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2}
     end
   end
@@ -71,16 +68,14 @@ defmodule DotsServer.BoardLines do
     end
   end
 
-  defp do_fill_line(board_lines, from, to) do
-  end
-
   defp line_tail_x({_from_x, from_y}, {_to_x, to_y}), do: Enum.min [from_y, to_y]
   defp line_tail_y({from_x, _from_y}, {to_x, _to_y}), do: Enum.min [from_x, to_x]
 
-  defp line_direction({from_x, from_y}, {to_x, to_y}) do
+  def line_direction({from_x, from_y}, {to_x, to_y}) do
     cond do
-      from_x == to_x -> @horizontal
-      from_y == to_y -> @vertical
+      from_x == to_x -> :horizontal
+      from_y == to_y -> :vertical
+      true -> :unknown
     end
   end
 end
