@@ -2,27 +2,24 @@ defmodule DotsServer.BoardLines do
   require Integer
   alias DotsServer.SinglyNestedList
 
-  @filled_line :filled_line
-  @unfilled_line :unfilled_line
   @horizontal :horizontal
   @vertical :vertical
 
   def new(board_size) do
     Enum.map 1..((board_size * 2) -1 ), fn(row) ->
       range = if Integer.is_odd(row), do: 1..(board_size-1), else: 1..board_size
-      Enum.map range, fn(_) -> @unfilled_line end
+      Enum.map range, fn(_) -> nil end
     end
   end
 
   def parse(board_lines_data) do
     board_lines_data
     |> SinglyNestedList.parse
-    |> SinglyNestedList.deep_map(fn(x) -> String.to_atom(x) end)
   end
 
   def data(board_fills), do: Poison.encode!(board_fills)
 
-  def fill_line(board_lines, from, to) do
+  def fill_line(board_lines, user, from, to) do
     case assert_is_valid_line(from, to) do
       {:error, msg} ->
         {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
@@ -32,7 +29,7 @@ defmodule DotsServer.BoardLines do
           {:error, msg} ->
             {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
           :ok ->
-            SinglyNestedList.replace_at(board_lines, point, @filled_line)
+            SinglyNestedList.replace_at(board_lines, point, user.id)
         end
     end
   end
@@ -52,12 +49,12 @@ defmodule DotsServer.BoardLines do
     {differential_x, differential_y} = {from_x - to_x, from_y - to_y}
 
     cond do
+      (abs(differential_x) == 1 && differential_y == 0) || (abs(differential_y) == 1 && differential_x == 0) ->
+        :ok
       differential_x == 0 && differential_y == 0 ->
         {:error, "line is to itself"}
       (differential_x == -1 && differential_y == -1) || (differential_x == 1 && differential_y == 1) ->
         {:error, "line is diagonal"}
-      (abs(differential_x) == 1 && differential_y == 0) || (abs(differential_y) == 1 && differential_x == 0) ->
-        :ok
       true ->
         {:error, "line is more than one unit long"}
     end
@@ -65,12 +62,12 @@ defmodule DotsServer.BoardLines do
 
   defp assert_is_available_point(board_lines, point) do
     case SinglyNestedList.at(board_lines, point) do
-      @unfilled_line ->
+      nil ->
         :ok
-      @filled_line ->
-        {:error, "line already drawn"}
       :out_of_bounds ->
         {:error, "line does not exist"}
+      _user_id ->
+        {:error, "line already drawn"}
     end
   end
 

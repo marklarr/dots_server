@@ -2,7 +2,6 @@ defmodule DotsServer.UserSpec do
   use ESpec
 
   alias DotsServer.User
-  use DotsServer.ConnCase
 
   describe "#changeset" do
     context "valid attributes" do

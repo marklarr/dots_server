@@ -26,12 +26,4 @@ defmodule DotsServer.SinglyNestedList do
         end
     end
   end
-
-  def deep_map(list, fun) when is_list(list) do
-    Enum.map(list, fn(y) -> deep_map(y, fun) end)
-  end
-
-  def deep_map(not_list, fun) do
-    fun.(not_list)
-  end
 end

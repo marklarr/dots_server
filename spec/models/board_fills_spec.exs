@@ -1,23 +1,28 @@
 defmodule DotsServer.BoardFillsSpec do
   use ESpec
+
   alias DotsServer.BoardFills
+
+  import DotsServer.Factory
+
+  let :user, do: create(:user)
 
   let :board_fills_data, do: Poison.encode!(board_fills)
   let :board_fills do
     [
-      [:empty, :empty, :empty],
-      [:empty, :empty, :empty],
-      [:empty, :empty, :empty]
+      [nil, nil, nil],
+      [nil, nil, nil],
+      [nil, nil, nil]
     ]
   end
 
   describe "new(board_size)" do
     it "returns a new board_fills for a size x size board" do
       expected = [
-        [:empty, :empty, :empty, :empty],
-        [:empty, :empty, :empty, :empty],
-        [:empty, :empty, :empty, :empty],
-        [:empty, :empty, :empty, :empty]
+        [nil, nil, nil, nil],
+        [nil, nil, nil, nil],
+        [nil, nil, nil, nil],
+        [nil, nil, nil, nil]
       ]
       BoardFills.new(5) |> should(eq expected)
     end
@@ -40,29 +45,29 @@ defmodule DotsServer.BoardFillsSpec do
   end
 
   describe "fill_block(board_fills, origin)" do
-    it "fills the block if it exists" do
+    it "fills the block for the user if it exists" do
       expected = [
-        [:empty, :empty, :empty],
-        [:empty, :empty, :empty],
-        [:empty, :filled, :empty]
+        [nil, nil, nil],
+        [nil, nil, nil],
+        [nil, user.id, nil]
       ]
 
       board_fills
-      |> BoardFills.fill_block({1, 2})
+      |> BoardFills.fill_block(user, {1, 2})
       |> should(eq expected)
     end
 
     it "does not allow a block to be filled twice" do
       {:error, msg} = board_fills
-                      |> BoardFills.fill_block({1, 2})
-                      |> BoardFills.fill_block({1, 2})
+                      |> BoardFills.fill_block(user, {1, 2})
+                      |> BoardFills.fill_block(user, {1, 2})
 
       msg |> should(eq "board_fills is already filled at origin_point {1, 2}")
     end
 
     it "does not allow a nonexistent block to be filled" do
       {:error, msg} = board_fills
-                      |> BoardFills.fill_block({4, 4})
+                      |> BoardFills.fill_block(user, {4, 4})
 
       msg |> should(eq "board_fills does not contain origin_point {4, 4}")
     end

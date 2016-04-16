@@ -58,16 +58,4 @@ defmodule SinglyNestedListSpec do
       |> should(eq :out_of_bounds)
     end
   end
-
-  describe "deep_map(list, fun)" do
-    it "maps over each element and returns a singly_nested_list" do
-      expected = [
-        [2,4,6],
-        [6,4,18]
-      ]
-
-      mapped = SinglyNestedList.deep_map singly_nested_list, fn(x) -> x * 2 end
-      mapped |> should(eq expected)
-    end
-  end
 end
