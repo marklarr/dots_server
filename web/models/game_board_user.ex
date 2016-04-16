@@ -1,17 +1,14 @@
-defmodule DotsServer.User do
+defmodule DotsServer.GameBoardUser do
   use DotsServer.Web, :model
 
-  schema "users" do
-    field :email, :string
-    field :encrypted_password, :string
-    field :handle, :string
-    timestamps
+  schema "game_board_users" do
+    belongs_to :user, DotsServer.User
+    belongs_to :game_board, DotsServer.GameBoard
 
-    has_many :game_board_users, DotsServer.GameBoardUser
-    has_many :game_boards, through: [:game_board_users, :game_board]
+    timestamps
   end
 
-  @required_fields ~w(email encrypted_password handle)
+  @required_fields ~w()
   @optional_fields ~w()
 
   @doc """

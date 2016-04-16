@@ -1,13 +1,15 @@
 defmodule DotsServer.GameBoard do
   use DotsServer.Web, :model
 
-  @board_regex ~r/^[\[\],01]+$/
+  # @board_regex ~r/^[\[\],01]+$/
 
   schema "game_boards" do
     field :board_lines_data, :binary
     field :board_fills_data, :binary
-
     timestamps
+
+    has_many :game_board_users, DotsServer.GameBoardUser
+    has_many :users, through: [:game_board_users, :user]
   end
 
   @required_fields ~w(board_lines_data board_fills_data)
@@ -22,7 +24,7 @@ defmodule DotsServer.GameBoard do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
-    |> validate_format(:board_fills_data, @board_regex)
-    |> validate_format(:board_lines_data, @board_regex)
+    # |> validate_format(:board_fills_data, @board_regex)
+    # |> validate_format(:board_lines_data, @board_regex)
   end
 end

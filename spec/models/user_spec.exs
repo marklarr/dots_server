@@ -23,9 +23,4 @@ defmodule DotsServer.UserSpec do
       changeset.valid? |> should(be_false)
     end
   end
-
-  it "can factory" do
-    user = create(:user)
-    IO.puts(user.email)
-  end
 end
