@@ -59,17 +59,21 @@ defmodule DotsServer.BoardLinesSpec do
       ]
       BoardLines.new(3)
       |> BoardLines.fill_line(user, {1, 1}, {1, 2})
-      |> should(eq expected)
+      |> should(eq {:ok, expected})
     end
 
     it "does not fill the line if it has already been filled" do
-      BoardLines.new(3)
+      {:ok, board_lines} = BoardLines.new(3)
       |> BoardLines.fill_line(user, {1, 1}, {1, 2})
+
+      board_lines
       |> BoardLines.fill_line(user, {1, 1}, {1, 2})
       |> should(eq {:error, "line already drawn from {1, 1} to {1, 2}"})
 
-      BoardLines.new(3)
+      {:ok, board_lines} = BoardLines.new(3)
       |> BoardLines.fill_line(user, {1, 1}, {1, 2})
+
+      board_lines
       |> BoardLines.fill_line(user, {1, 2}, {1, 1})
       |> should(eq {:error, "line already drawn from {1, 2} to {1, 1}"})
     end
@@ -105,11 +109,11 @@ defmodule DotsServer.BoardLinesSpec do
     it "does not fill the line if it is diagonal" do
       BoardLines.new(3)
       |> BoardLines.fill_line(user, {0, 0}, {1, 1})
-      |> should(eq {:error, "line is diagonal from {0, 0} to {1, 1}"})
+      |> should(eq {:error, "cannot draw line in unknown direction from {0, 0} to {1, 1}"})
 
       BoardLines.new(3)
       |> BoardLines.fill_line(user, {1, 1}, {0, 0})
-      |> should(eq {:error, "line is diagonal from {1, 1} to {0, 0}"})
+      |> should(eq {:error, "cannot draw line in unknown direction from {1, 1} to {0, 0}"})
     end
 
     it "does not fill the line if it's itself" do
@@ -119,17 +123,44 @@ defmodule DotsServer.BoardLinesSpec do
     end
   end
 
-  describe "direction(from, to)" do
-    it "returns :horizontal when the two points share the same x value" do
-      BoardLines.line_direction({1, 1}, {1, 2}) |> should(eq :horizontal)
+  describe "line_direction(from, to)" do
+    it "returns :vertical when the two points share the same x value" do
+      BoardLines.line_direction({1, 1}, {1, 2}) |> should(eq :vertical)
     end
 
-    it "returns :vertical when the two points share the same y value" do
-      BoardLines.line_direction({3, 1}, {1, 1}) |> should(eq :vertical)
+    it "returns :horizontal when the two points share the same y value" do
+      BoardLines.line_direction({3, 1}, {1, 1}) |> should(eq :horizontal)
     end
 
     it "returns unknown when the line is neither vertical nor horizontal" do
       BoardLines.line_direction({3, 1}, {1, 2}) |> should(eq :unknown)
+    end
+  end
+
+  describe "line_filled?(board_lines, from, to)" do
+    it "is true if the line has been filled" do
+      {:ok, board_lines} = BoardLines.new(3)
+                            |> BoardLines.fill_line(user, {1, 2}, {2, 2})
+
+      board_lines
+      |> BoardLines.line_filled?({1, 2}, {2, 2})
+      |> should(eq true)
+
+      board_lines
+      |> BoardLines.line_filled?({2, 2}, {1, 2})
+      |> should(eq true)
+    end
+
+    it "is true if the line has not been filled" do
+      board_lines = BoardLines.new(3)
+
+      # board_lines
+      # |> BoardLines.line_filled?({1, 2}, {2, 2})
+      # |> should(eq false)
+
+      board_lines
+      |> BoardLines.line_filled?({4, 4}, {4, 5})
+      |> should(eq false)
     end
   end
 end

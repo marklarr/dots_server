@@ -17,26 +17,35 @@ defmodule DotsServer.BoardLines do
   def data(board_fills), do: Poison.encode!(board_fills)
 
   def fill_line(board_lines, user, from, to) do
-    case assert_is_valid_line(from, to) do
-      {:error, msg} ->
-        {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
-      :ok ->
-        point = line_point(from, to)
-        case assert_is_available_point(board_lines, point) do
-          {:error, msg} ->
-            {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
-          :ok ->
-            SinglyNestedList.replace_at(board_lines, point, user.id)
-        end
+    with {:ok, point} <- line_point(from, to),
+         :ok <- assert_is_valid_line(from, to),
+         :ok <- assert_is_available_point(board_lines, point, from, to),
+    do: {:ok, SinglyNestedList.replace_at(board_lines, point, user.id)}
+  end
+
+  def line_filled?(board_lines, from, to) do
+    case line_point(from, to) do
+      {:ok, point} -> !Enum.member?([nil, :out_of_bounds], SinglyNestedList.at(board_lines, point))
+      {:error, _msg} -> false
+    end
+  end
+
+  def line_direction({from_x, from_y}, {to_x, to_y}) do
+    cond do
+      from_y == to_y -> :horizontal
+      from_x == to_x -> :vertical
+      true -> :unknown
     end
   end
 
   defp line_point(from, to) do
     case line_direction(from, to) do
       :horizontal ->
-        {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2 - 1}
+        {:ok, {line_tail_x(from, to), line_tail_y(from, to) * 2}}
       :vertical ->
-        {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2}
+        {:ok, {line_tail_x(from, to), line_tail_y(from, to) * 2 + 1}}
+      :unknown ->
+        make_error("cannot draw line in unknown direction", from, to)
     end
   end
 
@@ -49,33 +58,29 @@ defmodule DotsServer.BoardLines do
       (abs(differential_x) == 1 && differential_y == 0) || (abs(differential_y) == 1 && differential_x == 0) ->
         :ok
       differential_x == 0 && differential_y == 0 ->
-        {:error, "line is to itself"}
+        make_error("line is to itself", from, to)
       (differential_x == -1 && differential_y == -1) || (differential_x == 1 && differential_y == 1) ->
-        {:error, "line is diagonal"}
+        make_error("line is diagonal", from, to)
       true ->
-        {:error, "line is more than one unit long"}
+        make_error("line is more than one unit long", from, to)
     end
   end
 
-  defp assert_is_available_point(board_lines, point) do
+  defp make_error(message, from, to) do
+    {:error, message <> " from #{inspect(from)} to #{inspect(to)}"}
+  end
+
+  defp assert_is_available_point(board_lines, point, from, to) do
     case SinglyNestedList.at(board_lines, point) do
       nil ->
         :ok
       :out_of_bounds ->
-        {:error, "line does not exist"}
+        make_error("line does not exist", from, to)
       _user_id ->
-        {:error, "line already drawn"}
+        make_error("line already drawn", from , to)
     end
   end
 
-  defp line_tail_x({_from_x, from_y}, {_to_x, to_y}), do: Enum.min [from_y, to_y]
-  defp line_tail_y({from_x, _from_y}, {to_x, _to_y}), do: Enum.min [from_x, to_x]
-
-  def line_direction({from_x, from_y}, {to_x, to_y}) do
-    cond do
-      from_x == to_x -> :horizontal
-      from_y == to_y -> :vertical
-      true -> :unknown
-    end
-  end
+  defp line_tail_y({_from_x, from_y}, {_to_x, to_y}), do: Enum.min [from_y, to_y]
+  defp line_tail_x({from_x, _from_y}, {to_x, _to_y}), do: Enum.min [from_x, to_x]
 end
