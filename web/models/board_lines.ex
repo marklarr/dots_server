@@ -23,14 +23,58 @@ defmodule DotsServer.BoardLines do
   def data(board_fills), do: Poison.encode!(board_fills)
 
   def fill_line(board_lines, from, to) do
-    point = case line_direction(from, to) do
-      :horizontal ->
+    case assert_is_valid_line(from, to) do
+      {:error, msg} ->
+        {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
+      :ok ->
+        point = line_point(from, to)
+        case assert_is_available_point(board_lines, point) do
+          {:error, msg} ->
+            {:error, msg <> " from #{inspect(from)} to #{inspect(to)}"}
+          :ok ->
+            SinglyNestedList.replace_at(board_lines, point, @filled_line)
+        end
+    end
+  end
+
+  defp line_point(from, to) do
+    case line_direction(from, to) do
+      @horizontal ->
         {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2 - 1}
-      :vertical ->
+      @vertical ->
         {line_tail_x(from, to), (line_tail_y(from, to) + 1) * 2}
     end
+  end
 
-    SinglyNestedList.replace_at(board_lines, point, @filled_line)
+  defp assert_is_valid_line(from, to) do
+    {from_x, from_y} = from
+    {to_x, to_y} = to
+    {differential_x, differential_y} = {from_x - to_x, from_y - to_y}
+
+    cond do
+      differential_x == 0 && differential_y == 0 ->
+        {:error, "line is to itself"}
+      (differential_x == -1 && differential_y == -1) || (differential_x == 1 && differential_y == 1) ->
+        {:error, "line is diagonal"}
+      (abs(differential_x) == 1 && differential_y == 0) || (abs(differential_y) == 1 && differential_x == 0) ->
+        :ok
+      true ->
+        {:error, "line is more than one unit long"}
+    end
+  end
+
+  defp assert_is_available_point(board_lines, point) do
+    case SinglyNestedList.at(board_lines, point) do
+      @unfilled_line ->
+        :ok
+      @filled_line ->
+        {:error, "line already drawn"}
+      :out_of_bounds ->
+        {:error, "line does not exist"}
+    end
+  end
+
+  defp do_fill_line(board_lines, from, to) do
   end
 
   defp line_tail_x({_from_x, from_y}, {_to_x, to_y}), do: Enum.min [from_y, to_y]
@@ -38,8 +82,8 @@ defmodule DotsServer.BoardLines do
 
   defp line_direction({from_x, from_y}, {to_x, to_y}) do
     cond do
-      from_x == to_x -> :horizontal
-      from_y == to_y -> :vertical
+      from_x == to_x -> @horizontal
+      from_y == to_y -> @vertical
     end
   end
 end
