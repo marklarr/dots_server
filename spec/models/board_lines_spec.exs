@@ -154,9 +154,9 @@ defmodule DotsServer.BoardLinesSpec do
     it "is true if the line has not been filled" do
       board_lines = BoardLines.new(3)
 
-      # board_lines
-      # |> BoardLines.line_filled?({1, 2}, {2, 2})
-      # |> should(eq false)
+      board_lines
+      |> BoardLines.line_filled?({1, 2}, {2, 2})
+      |> should(eq false)
 
       board_lines
       |> BoardLines.line_filled?({4, 4}, {4, 5})

@@ -38,7 +38,7 @@ defmodule DotsServer.BoardLines do
     end
   end
 
-  defp line_point(from, to) do
+  def line_point(from, to) do
     case line_direction(from, to) do
       :horizontal ->
         {:ok, {line_tail_x(from, to), line_tail_y(from, to) * 2}}

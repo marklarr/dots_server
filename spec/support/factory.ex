@@ -17,8 +17,8 @@ defmodule DotsServer.Factory do
 
   def factory(:game_board) do
     %GameBoard{
-      board_lines_data: BoardLines.new(5) |> BoardLines.data,
-      board_fills_data: BoardFills.new(5) |> BoardFills.data
+      board_lines_data: BoardLines.new(3) |> BoardLines.data,
+      board_fills_data: BoardFills.new(3) |> BoardFills.data
     }
   end
 

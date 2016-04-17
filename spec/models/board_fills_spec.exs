@@ -46,11 +46,11 @@ defmodule DotsServer.BoardFillsSpec do
 
   describe "fill_block(board_fills, origin)" do
     it "fills the block for the user if it exists" do
-      expected = [
+      expected = {:ok, [
         [nil, nil, nil],
         [nil, nil, nil],
         [nil, user.id, nil]
-      ]
+      ]}
 
       board_fills
       |> BoardFills.fill_block(user, {1, 2})
@@ -58,9 +58,9 @@ defmodule DotsServer.BoardFillsSpec do
     end
 
     it "does not allow a block to be filled twice" do
-      {:error, msg} = board_fills
-                      |> BoardFills.fill_block(user, {1, 2})
-                      |> BoardFills.fill_block(user, {1, 2})
+      {:ok, board_fills} = board_fills |> BoardFills.fill_block(user, {1, 2})
+
+      {:error, msg} = board_fills |> BoardFills.fill_block(user, {1, 2})
 
       msg |> should(eq "board_fills is already filled at origin_point {1, 2}")
     end

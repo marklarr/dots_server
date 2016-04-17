@@ -9,6 +9,8 @@ config :dots_server, DotsServer.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :phoenix, :stacktrace_depth, 20
+
 # Configure your database
 config :dots_server, DotsServer.Repo,
   adapter: Ecto.Adapters.Postgres,

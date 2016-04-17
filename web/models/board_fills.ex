@@ -19,7 +19,7 @@ defmodule DotsServer.BoardFills do
   def fill_block(board_fills, user, origin) do
     case board_fills |> SinglyNestedList.at(origin) do
       nil ->
-        SinglyNestedList.replace_at(board_fills, origin, user.id)
+        {:ok, SinglyNestedList.replace_at(board_fills, origin, user.id)}
       :out_of_bounds ->
         {:error, "board_fills does not contain origin_point #{inspect(origin)}"}
       _user_id ->

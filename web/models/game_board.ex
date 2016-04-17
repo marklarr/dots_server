@@ -10,10 +10,11 @@ defmodule DotsServer.GameBoard do
 
     has_many :game_board_users, DotsServer.GameBoardUser
     has_many :users, through: [:game_board_users, :user]
+    belongs_to :next_turn_user, DotsServer.User
   end
 
   @required_fields ~w(board_lines_data board_fills_data)
-  @optional_fields ~w()
+  @optional_fields ~w(next_turn_user_id)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

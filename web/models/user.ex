@@ -9,6 +9,7 @@ defmodule DotsServer.User do
 
     has_many :game_board_users, DotsServer.GameBoardUser
     has_many :game_boards, through: [:game_board_users, :game_board]
+    has_many :next_turn_game_boards, DotsServer.GameBoard, foreign_key: :next_turn_user_id
   end
 
   @required_fields ~w(email encrypted_password handle)
