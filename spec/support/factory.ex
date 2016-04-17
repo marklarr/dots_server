@@ -30,8 +30,9 @@ defmodule DotsServer.Factory do
   end
 
   def with_users(game_board) do
+    p1 = create(:game_board_user, %{game_board: game_board}).user
     create(:game_board_user, %{game_board: game_board})
-    create(:game_board_user, %{game_board: game_board})
+    game_board |> GameBoard.changeset(%{next_turn_user_id: p1.id}) |> DotsServer.Repo.update!
     DotsServer.Repo.get!(GameBoard, game_board.id) |> DotsServer.Repo.preload(:users)
   end
 end

@@ -49,6 +49,8 @@ defmodule DotsServer.GameEngineSpec do
 
     it "lets you play a full game" do
       {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {0, 0}, {0, 1})
+      {:error, msg} = game_board |> GameEngine.draw_line(player1, {0, 1}, {1, 1})
+      msg |> should(eq "player #{player1.id} cannot go on player #{player2.id}'s turn")
       {:error, msg} = game_board |> GameEngine.draw_line(player2, {0, 0}, {0, 1})
       msg |> should(eq "line already drawn from {0, 0} to {0, 1}")
       {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {0, 1}, {1, 1})
