@@ -3,6 +3,27 @@ defmodule DotsServer.GameEngine do
   alias DotsServer.GameBoard
   alias DotsServer.BoardLines
   alias DotsServer.BoardFills
+  alias DotsServer.GameBoardUser
+
+  def new_game([user1, user2], size) do
+    board_lines_data = BoardLines.new(size) |> BoardLines.data
+    board_fills_data = BoardFills.new(size) |> BoardFills.data
+
+    changeset = GameBoard.changeset(%GameBoard{}, %{
+      board_lines_data: board_lines_data,
+      board_fills_data: board_fills_data,
+      next_turn_user_id: user1.id
+    })
+
+    DotsServer.Repo.insert!(changeset)
+    |> attach_user(user1)
+    |> attach_user(user2)
+  end
+
+  defp attach_user(game_board, user) do
+    DotsServer.Repo.insert!(%GameBoardUser{game_board_id: game_board.id, user_id: user.id})
+    game_board
+  end
 
   def draw_line(game_board, user, from, to) do
     if user.id == game_board.next_turn_user_id do
