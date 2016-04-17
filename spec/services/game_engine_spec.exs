@@ -13,16 +13,16 @@ defmodule DotsServer.GameEngineSpec do
 
   describe "draw_line(game_board, user, from, to)" do
     it "fills in a square for the user if they complete it" do
-      game_board = GameEngine.draw_line(game_board, player1, {0, 0}, {0, 1})
+      {:ok, game_board} = GameEngine.draw_line(game_board, player1, {0, 0}, {0, 1})
       game_board.next_turn_user |> should(eq player2)
 
-      game_board = GameEngine.draw_line(game_board, player2, {0, 1}, {1, 1})
+      {:ok, game_board} = GameEngine.draw_line(game_board, player2, {0, 1}, {1, 1})
       game_board.next_turn_user |> should(eq player1)
 
-      game_board = GameEngine.draw_line(game_board, player1, {1, 1}, {1, 0})
+      {:ok, game_board} = GameEngine.draw_line(game_board, player1, {1, 1}, {1, 0})
       game_board.next_turn_user |> should(eq player2)
 
-      game_board = GameEngine.draw_line(game_board, player2, {1, 0}, {0, 0})
+      {:ok, game_board} = GameEngine.draw_line(game_board, player2, {1, 0}, {0, 0})
       game_board.next_turn_user |> should(eq player2)
 
       expected_board_lines = [
@@ -48,19 +48,24 @@ defmodule DotsServer.GameEngineSpec do
     end
 
     it "lets you play a full game" do
-      game_board = game_board
-      |> GameEngine.draw_line(player1, {0, 0}, {0, 1})
-      |> GameEngine.draw_line(player2, {0, 1}, {1, 1})
-      |> GameEngine.draw_line(player1, {1, 1}, {1, 0})
-      |> GameEngine.draw_line(player2, {1, 0}, {0, 0})
-      |> GameEngine.draw_line(player2, {1, 2}, {2, 2})
-      |> GameEngine.draw_line(player1, {2, 0}, {2, 1})
-      |> GameEngine.draw_line(player2, {1, 0}, {2, 0})
-      |> GameEngine.draw_line(player1, {2, 2}, {2, 1})
-      |> GameEngine.draw_line(player2, {1, 1}, {1, 2})
-      |> GameEngine.draw_line(player1, {1, 1}, {2, 1})
-      |> GameEngine.draw_line(player1, {0, 1}, {0, 2})
-      |> GameEngine.draw_line(player2, {0, 2}, {1, 2})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {0, 0}, {0, 1})
+      {:error, msg} = game_board |> GameEngine.draw_line(player2, {0, 0}, {0, 1})
+      msg |> should(eq "line already drawn from {0, 0} to {0, 1}")
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {0, 1}, {1, 1})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {1, 1}, {1, 0})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {1, 0}, {0, 0})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {1, 2}, {2, 2})
+      {:error, msg} = game_board |> GameEngine.draw_line(player1, {1, 1}, {1, 1})
+      msg |> should(eq "line is to itself from {1, 1} to {1, 1}")
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {2, 0}, {2, 1})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {1, 0}, {2, 0})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {2, 2}, {2, 1})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {1, 1}, {1, 2})
+      {:error, msg} = game_board |> GameEngine.draw_line(player1, {1, 1}, {2, 2})
+      msg |> should(eq "cannot draw line in unknown direction from {1, 1} to {2, 2}")
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {1, 1}, {2, 1})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player1, {0, 1}, {0, 2})
+      {:ok, game_board} = game_board |> GameEngine.draw_line(player2, {0, 2}, {1, 2})
 
       expected_board_lines = [
         [player2.id, player2.id],

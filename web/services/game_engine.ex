@@ -9,7 +9,7 @@ defmodule DotsServer.GameEngine do
     {:ok, origins_to_fill}  <- determine_board_fill_origins(board_lines, from, to),
     {:ok, board_fills}      <- game_board.board_fills_data |> BoardFills.parse |> make_fills(origins_to_fill, user),
     {:ok, next_turn_user}   <- determine_next_turn_user(game_board, user, origins_to_fill),
-    do: do_game_board_update(game_board, next_turn_user, board_lines, board_fills)
+    do: {:ok, do_game_board_update(game_board, next_turn_user, board_lines, board_fills)}
   end
 
   defp determine_next_turn_user(game_board, user, origins_to_fill) do
