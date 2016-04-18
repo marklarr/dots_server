@@ -9,7 +9,7 @@ defmodule DotsServer.Factory do
 
   def factory(:user) do
     %User{
-      handle: "d0t1n4t0r",
+      handle: sequence(:handle, &"d0t1n4t0r-#{&1}"),
       email: sequence(:email, &"email-#{&1}@fake.com"),
       encrypted_password: :crypto.hash(:sha256, "my_pass123") |> Base.encode16
     }

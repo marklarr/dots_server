@@ -12,25 +12,69 @@ defmodule DotsServer.GameBoardChannelTest do
   let :socket1 do
     {:ok, _, socket} =
       socket("users_socket", %{user_id: user1.id})
-      |> subscribe_and_join(GameBoardChannel, "game_boards:play", %{"id": game_board.id})
+      |> subscribe_and_join(GameBoardChannel, "game_boards:#{game_board.id}")
     socket
   end
   let :socket2 do
     {:ok, _, socket} =
-    socket("users_socket", %{user_id: user2.id})
-    |> subscribe_and_join(GameBoardChannel, "game_boards:play", %{"id": game_board.id})
+      socket("users_socket", %{user_id: user2.id})
+      |> subscribe_and_join(GameBoardChannel, "game_boards:#{game_board.id}")
     socket
   end
 
-  it "ping replies with status ok" do
-    ref = push socket1, "status"
-    assert_reply ref, :ok, %{board: "status"}
+  describe "status" do
+    it "returns the current status of the game_board" do
+      expected_game_board = %{
+        game_board: %{
+          id: game_board.id,
+          board_lines: [
+            [nil, nil],
+            [nil, nil, nil],
+            [nil, nil],
+            [nil, nil, nil],
+            [nil, nil]
+          ],
+          board_fills: [
+            [nil, nil],
+            [nil, nil]
+          ],
+          users: [
+            %{
+              id: user1.id,
+              handle: user1.handle,
+              email: user1.email
+            },
+            %{
+              id: user2.id,
+              handle: user2.handle,
+              email: user2.email
+            }
+          ],
+          next_turn_user: %{id: user1.id, handle: user1.handle, email: user1.email}
+        }
+      }
+
+      ref = push socket1, "status"
+      assert_reply(ref, :ok, actual_game_board)
+      actual_game_board |> should(eq expected_game_board)
+    end
   end
 
-  it "take_turn broadcasts to game_boards:play" do
-    push socket1, "take_turn"
-    assert_broadcast "turn taken!", %{board: "hey"}
+  describe "take_turn" do
+    it "takes the turn and broadcasts the new game_board to all sockets" do
+
+    end
   end
+
+  # it "ping replies with status ok" do
+  #   ref = push socket1, "status"
+  #   assert_reply ref, :ok, %{board: "status"}
+  # end
+  #
+  # it "take_turn broadcasts to game_boards:play" do
+  #   push socket1, "take_turn"
+  #   assert_broadcast "turn taken!", %{board: "hey"}
+  # end
 
   it "broadcasts are pushed to the client" do
     broadcast_from! socket1, "broadcast", %{"some" => "data"}
