@@ -26,14 +26,17 @@ defmodule DotsServer.GameEngine do
   end
 
   def draw_line(game_board, user, from, to) do
-    if user.id == game_board.next_turn_user_id do
+    cond do
+    GameBoard.game_over?(game_board) ->
+      {:error, "game is over"}
+    user.id != game_board.next_turn_user_id ->
+      {:error, "player #{user.id} cannot go on player #{game_board.next_turn_user_id}'s turn"}
+    true ->
       with {:ok, board_lines} <- game_board.board_lines_data |> BoardLines.parse |> BoardLines.fill_line(user, from, to),
       {:ok, origins_to_fill}  <- determine_board_fill_origins(board_lines, from, to),
       {:ok, board_fills}      <- game_board.board_fills_data |> BoardFills.parse |> make_fills(origins_to_fill, user),
       {:ok, next_turn_user}   <- determine_next_turn_user(game_board, user, origins_to_fill),
       do: {:ok, do_game_board_update(game_board, next_turn_user, board_lines, board_fills)}
-    else
-      {:error, "player #{user.id} cannot go on player #{game_board.next_turn_user_id}'s turn"}
     end
   end
 

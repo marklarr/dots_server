@@ -125,6 +125,8 @@ defmodule DotsServer.GameEngineSpec do
       {:ok, game_board} = game_board |> GameEngine.draw_line(user1, {1, 1}, {2, 1})
       {:ok, game_board} = game_board |> GameEngine.draw_line(user1, {0, 1}, {0, 2})
       {:ok, game_board} = game_board |> GameEngine.draw_line(user2, {0, 2}, {1, 2})
+      {:error, msg} = game_board |> GameEngine.draw_line(user2, {0, 2}, {1, 2})
+      msg |> should(eq "game is over")
 
       expected_board_lines = [
         [user2.id, user2.id],
