@@ -27,10 +27,13 @@ defmodule DotsServer.GameBoardChannel do
     user = user(socket)
     {from, to} = from_to(payload)
 
-    {:ok, game_board} = GameEngine.draw_line(game_board, user, from, to)
-
-    broadcast socket, "updated_game_board", response_payload(game_board)
-    {:noreply, socket}
+    case GameEngine.draw_line(game_board, user, from, to) do
+      {:ok, game_board} ->
+        broadcast socket, "updated_game_board", response_payload(game_board)
+        {:reply, :ok, socket}
+      {:error, _msg} ->
+        {:reply, :error, socket}
+    end
   end
 
   # This is invoked every time a notification is being broadcast

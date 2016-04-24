@@ -67,47 +67,48 @@ defmodule DotsServer.GameBoardChannelTest do
   describe "take_turn" do
     context "valid move" do
       it "takes the turn and broadcasts the new game_board to all sockets" do
-        expected_game_board = %{
-          "game_board" => %{
-            "id" => game_board.id,
-            "board_lines" => [
-              [nil, nil],
-              [nil, nil, nil],
-              [nil, nil],
-              [nil, user1.id, nil],
-              [nil, nil]
-            ],
-            "board_fills" => [
-              [nil, nil],
-              [nil, nil]
-            ],
-            "users" => [
-              %{
-                "id" => user1.id,
-                "handle" => user1.handle,
-                "email" => user1.email
-              },
-              %{
-                "id" => user2.id,
-                "handle" => user2.handle,
-                "email" => user2.email
-              }
-            ],
-            "next_turn_user" => %{
-              "id" => user2.id,
-              "handle" => user2.handle,
-              "email" => user2.email
+          expected_game_board = %{
+              "game_board" => %{
+                  "id" => game_board.id,
+                  "board_lines" => [
+                      [nil, nil],
+                      [nil, nil, nil],
+                      [nil, nil],
+                      [nil, user1.id, nil],
+                      [nil, nil]
+                    ],
+                  "board_fills" => [
+                      [nil, nil],
+                      [nil, nil]
+                    ],
+                  "users" => [
+                      %{
+                          "id" => user1.id,
+                          "handle" => user1.handle,
+                          "email" => user1.email
+                        },
+                      %{
+                          "id" => user2.id,
+                          "handle" => user2.handle,
+                          "email" => user2.email
+                        }
+                    ],
+                  "next_turn_user" => %{
+                      "id" => user2.id,
+                      "handle" => user2.handle,
+                      "email" => user2.email
+                    }
+                }
             }
-          }
-        }
 
-        push socket1, "take_turn", %{from: %{x: 1, y: 1 }, to: %{x: 1, y: 2} }
-        assert_broadcast "updated_game_board", actual_game_board
-        actual_game_board |> should(eq expected_game_board)
-      end
+          push socket1, "take_turn", %{from: %{x: 1, y: 1 }, to: %{x: 1, y: 2} }
+          assert_broadcast "updated_game_board", actual_game_board
+          actual_game_board |> should(eq expected_game_board)
+        end
 
       it "replies with status ok" do
         ref = push socket1, "take_turn", %{from: %{x: 1, y: 1 }, to: %{x: 1, y: 2} }
+        assert_broadcast "updated_game_board", _
         assert_reply(ref, :ok, _)
       end
     end
@@ -120,7 +121,7 @@ defmodule DotsServer.GameBoardChannelTest do
 
       it "replies with a status of error" do
         ref = push socket1, "take_turn", %{from: %{x: 1, y: 1 }, to: %{x: 2, y: 2} }
-        assert_reply(ref, :error, _)
+        assert_reply(ref, :error, %{:message => "cannot draw line in unknown direction"})
       end
     end
   end
