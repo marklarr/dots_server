@@ -25,32 +25,36 @@ defmodule DotsServer.GameBoardChannelTest do
   describe "status" do
     it "returns the current status of the game_board" do
       expected_game_board = %{
-        game_board: %{
-          id: game_board.id,
-          board_lines: [
+        "game_board" => %{
+          "id" => game_board.id,
+          "board_lines" => [
             [nil, nil],
             [nil, nil, nil],
             [nil, nil],
             [nil, nil, nil],
             [nil, nil]
           ],
-          board_fills: [
+          "board_fills" => [
             [nil, nil],
             [nil, nil]
           ],
-          users: [
+          "users" => [
             %{
-              id: user1.id,
-              handle: user1.handle,
-              email: user1.email
+              "id" => user1.id,
+              "handle" => user1.handle,
+              "email" => user1.email
             },
             %{
-              id: user2.id,
-              handle: user2.handle,
-              email: user2.email
+              "id" => user2.id,
+              "handle" => user2.handle,
+              "email" => user2.email
             }
           ],
-          next_turn_user: %{id: user1.id, handle: user1.handle, email: user1.email}
+          "next_turn_user" => %{
+            "id" => user1.id,
+            "handle" => user1.handle,
+            "email" => user1.email
+          }
         }
       }
 
@@ -63,32 +67,36 @@ defmodule DotsServer.GameBoardChannelTest do
   describe "take_turn" do
     it "takes the turn and broadcasts the new game_board to all sockets" do
       expected_game_board = %{
-        game_board: %{
-          id: game_board.id,
-          board_lines: [
+        "game_board" => %{
+          "id" => game_board.id,
+          "board_lines" => [
             [nil, nil],
             [nil, nil, nil],
             [nil, nil],
             [nil, user1.id, nil],
             [nil, nil]
           ],
-          board_fills: [
+          "board_fills" => [
             [nil, nil],
             [nil, nil]
           ],
-          users: [
+          "users" => [
             %{
-              id: user1.id,
-              handle: user1.handle,
-              email: user1.email
+              "id" => user1.id,
+              "handle" => user1.handle,
+              "email" => user1.email
             },
             %{
-              id: user2.id,
-              handle: user2.handle,
-              email: user2.email
+              "id" => user2.id,
+              "handle" => user2.handle,
+              "email" => user2.email
             }
           ],
-          next_turn_user: %{id: user2.id, handle: user2.handle, email: user2.email}
+          "next_turn_user" => %{
+            "id" => user2.id,
+            "handle" => user2.handle,
+            "email" => user2.email
+          }
         }
       }
 

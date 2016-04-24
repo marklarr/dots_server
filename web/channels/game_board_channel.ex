@@ -4,8 +4,7 @@ defmodule DotsServer.GameBoardChannel do
   import Phoenix.Socket
 
   alias DotsServer.GameBoard
-  alias DotsServer.BoardLines
-  alias DotsServer.BoardFills
+  alias DotsServer.User
   alias DotsServer.GameEngine
 
   def join("game_boards:" <> game_board_id, payload, socket) do
@@ -17,81 +16,20 @@ defmodule DotsServer.GameBoardChannel do
   end
 
   def handle_in("status", _payload, socket) do
-    game_board = DotsServer.Repo.get(GameBoard, socket.assigns.game_board_id)
-                  |> DotsServer.Repo.preload([:users, :next_turn_user])
+    return_payload = game_board(socket)
+                      |> response_payload
 
-    user1 = Enum.at(game_board.users, 0)
-    user2 = Enum.at(game_board.users, 1)
-
-    game_board_payload = %{
-      game_board: %{
-        id: game_board.id,
-        board_lines: game_board.board_lines_data |> BoardLines.parse,
-        board_fills: game_board.board_fills_data |> BoardFills.parse,
-        users: [
-          %{
-            id: user1.id,
-            handle: user1.handle,
-            email: user1.email
-          },
-          %{
-            id: user2.id,
-            handle: user2.handle,
-            email: user2.email
-          }
-        ],
-        next_turn_user: %{
-          id: game_board.next_turn_user.id,
-          handle: game_board.next_turn_user.handle,
-          email: game_board.next_turn_user.email
-        }
-      }
-    }
-
-    {:reply, {:ok, game_board_payload}, socket}
+    {:reply, {:ok, return_payload}, socket}
   end
 
   def handle_in("take_turn", payload, socket) do
-    game_board = DotsServer.Repo.get(GameBoard, socket.assigns.game_board_id)
-                  |> DotsServer.Repo.preload([:users, :next_turn_user])
+    game_board = game_board(socket)
+    user = user(socket)
+    {from, to} = from_to(payload)
 
-    user1 = Enum.at(game_board.users, 0)
-    user2 = Enum.at(game_board.users, 1)
+    {:ok, game_board} = GameEngine.draw_line(game_board, user, from, to)
 
-    #FIXME: user1 is hardcoded
-    [from, to] = Enum.map [:from, :to], fn(key) ->
-      coordinate_map = Map.get(payload, key)
-      x = Map.get(coordinate_map, :x)
-      y = Map.get(coordinate_map, :y)
-      {x, y}
-    end
-    {:ok, game_board} = GameEngine.draw_line(game_board, user1, from, to)
-
-    game_board_payload = %{
-      game_board: %{
-        id: game_board.id,
-        board_lines: game_board.board_lines_data |> BoardLines.parse,
-        board_fills: game_board.board_fills_data |> BoardFills.parse,
-        users: [
-          %{
-            id: user1.id,
-            handle: user1.handle,
-            email: user1.email
-          },
-          %{
-            id: user2.id,
-            handle: user2.handle,
-            email: user2.email
-          }
-        ],
-        next_turn_user: %{
-          id: game_board.next_turn_user.id,
-          handle: game_board.next_turn_user.handle,
-          email: game_board.next_turn_user.email
-        }
-      }
-    }
-    broadcast socket, "updated_game_board", game_board_payload
+    broadcast socket, "updated_game_board", response_payload(game_board)
     {:noreply, socket}
   end
 
@@ -105,5 +43,28 @@ defmodule DotsServer.GameBoardChannel do
 
   defp authorized?(_payload) do
     true
+  end
+
+  defp response_payload(game_board) do
+    %{"game_board" => Poison.decode!(Poison.encode!(game_board))}
+  end
+
+  defp game_board(socket) do
+    DotsServer.Repo.get(GameBoard, socket.assigns.game_board_id)
+  end
+
+  defp user(socket) do
+    DotsServer.Repo.get(User, socket.assigns.user_id)
+  end
+
+  defp from_to(payload) do
+    [from, to] = Enum.map [:from, :to], fn(key) ->
+      coordinate_map = Map.get(payload, key)
+      x = Map.get(coordinate_map, :x)
+      y = Map.get(coordinate_map, :y)
+      {x, y}
+    end
+
+    {from, to}
   end
 end
