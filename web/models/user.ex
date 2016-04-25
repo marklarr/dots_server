@@ -1,5 +1,6 @@
 defmodule DotsServer.User do
   use DotsServer.Web, :model
+  @derive {Poison.Encoder, only: [:id, :email, :handle]}
 
   schema "users" do
     field :email, :string

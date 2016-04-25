@@ -3,6 +3,8 @@ defmodule DotsServer.UserSpec do
 
   alias DotsServer.User
 
+  import DotsServer.Factory
+
   describe "#changeset" do
     context "valid attributes" do
       let :valid_attrs, do: %{email: "some content", encrypted_password: "some content", handle: "some content"}
@@ -20,6 +22,17 @@ defmodule DotsServer.UserSpec do
     it "makes an invalid changeset" do
       changeset = User.changeset(%User{}, invalid_attrs)
       changeset.valid? |> should(be_false)
+    end
+  end
+
+  context "encoding with Poison" do
+    it "encodes the id, email, and handle" do
+      user = create(:user)
+      Poison.decode!(Poison.encode!(user)) |> should(eq %{
+        "id" => user.id,
+        "email" => user.email,
+        "handle" => user.handle
+      })
     end
   end
 end
