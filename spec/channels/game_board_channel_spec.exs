@@ -119,9 +119,20 @@ defmodule DotsServer.GameBoardChannelTest do
         refute_broadcast "updated_game_board", _
       end
 
-      it "replies with a status of error" do
+      it "replies with a status of error and the reason" do
         ref = push socket1, "take_turn", %{from: %{x: 1, y: 1 }, to: %{x: 2, y: 2} }
-        assert_reply(ref, :error, %{:message => "cannot draw line in unknown direction"})
+        assert_reply(ref, :error, %{reason: "cannot draw line in unknown direction from {1, 1} to {2, 2}"})
+      end
+    end
+  end
+
+  describe "subscribe_and_join" do
+    context "user not a part of game" do
+      it "returns an 'unauthorized' error" do
+        user3 = create(:user)
+        {:error, message} = socket("users_socket", %{user_id: user3.id})
+                            |> subscribe_and_join(GameBoardChannel, "game_boards:#{game_board.id}")
+        message |> should(eq %{reason: "unauthorized"})
       end
     end
   end

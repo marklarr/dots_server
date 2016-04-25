@@ -7,9 +7,10 @@ defmodule DotsServer.GameBoardChannel do
   alias DotsServer.User
   alias DotsServer.GameEngine
 
-  def join("game_boards:" <> game_board_id, payload, socket) do
-    if authorized?(payload) do
-      {:ok, assign(socket, :game_board_id, String.to_integer(game_board_id))}
+  def join("game_boards:" <> game_board_id, _payload, socket) do
+    socket = assign(socket, :game_board_id, String.to_integer(game_board_id))
+    if authorized?(socket) do
+      {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -31,8 +32,8 @@ defmodule DotsServer.GameBoardChannel do
       {:ok, game_board} ->
         broadcast socket, "updated_game_board", response_payload(game_board)
         {:reply, :ok, socket}
-      {:error, _msg} ->
-        {:reply, :error, socket}
+      {:error, message} ->
+        {:reply, {:error, %{reason: message}}, socket}
     end
   end
 
@@ -44,8 +45,11 @@ defmodule DotsServer.GameBoardChannel do
     {:noreply, socket}
   end
 
-  defp authorized?(_payload) do
-    true
+  defp authorized?(socket) do
+    user = user(socket)
+    game_board = game_board(socket) |> DotsServer.Repo.preload(:users)
+
+    user in game_board.users
   end
 
   defp response_payload(game_board) do
