@@ -135,20 +135,20 @@ defmodule DotsServer.GameBoardChannelTest do
         message |> should(eq %{reason: "unauthorized"})
       end
     end
+
+    context "no GameBoard with provided id exists" do
+      it "returns an error" do
+        {:error, message} = socket("users_socket", %{user_id: user1.id})
+                            |> subscribe_and_join(GameBoardChannel, "game_boards:99999")
+        message |> should(eq %{reason: "cannot find game_board with id 99999"})
+      end
+    end
   end
 
-  # it "ping replies with status ok" do
-  #   ref = push socket1, "status"
-  #   assert_reply ref, :ok, %{board: "status"}
-  # end
-  #
-  # it "take_turn broadcasts to game_boards:play" do
-  #   push socket1, "take_turn"
-  #   assert_broadcast "turn taken!", %{board: "hey"}
-  # end
-
-  it "broadcasts are pushed to the client" do
-    broadcast_from! socket1, "broadcast", %{"some" => "data"}
-    assert_push "broadcast", %{"some" => "data"}
+  describe "broadcast" do
+    it "pushes to the client" do
+      broadcast_from! socket1, "broadcast", %{"some" => "data"}
+      assert_push "broadcast", %{"some" => "data"}
+    end
   end
 end

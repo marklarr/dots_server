@@ -9,10 +9,13 @@ defmodule DotsServer.GameBoardChannel do
 
   def join("game_boards:" <> game_board_id, _payload, socket) do
     socket = assign(socket, :game_board_id, String.to_integer(game_board_id))
-    if authorized?(socket) do
-      {:ok, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
+    cond do
+      !game_board(socket) ->
+        {:error, %{reason: "cannot find game_board with id #{game_board_id}"}}
+      !authorized?(socket) ->
+        {:error, %{reason: "unauthorized"}}
+      true ->
+        {:ok, socket}
     end
   end
 
@@ -37,9 +40,6 @@ defmodule DotsServer.GameBoardChannel do
     end
   end
 
-  # This is invoked every time a notification is being broadcast
-  # to the client. The default implementation is just to push it
-  # downstream but one could filter or change the event.
   def handle_out(event, payload, socket) do
     push socket, event, payload
     {:noreply, socket}
