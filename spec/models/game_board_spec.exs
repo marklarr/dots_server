@@ -5,6 +5,7 @@ defmodule DotsServer.GameBoardSpec do
   alias DotsServer.BoardLines
   alias DotsServer.BoardFills
   alias DotsServer.GameBoardUser
+  alias DotsServer.GameEngine
 
   import DotsServer.Factory
 
@@ -119,6 +120,43 @@ defmodule DotsServer.GameBoardSpec do
         |> GameBoard.winner_user
         |> should(eq nil)
       end
+    end
+  end
+
+  describe "encoding with Poison" do
+    it "encodes the id, users, board_fills, board_lines, and next_turn_user" do
+      game_board = GameEngine.new_game([user1, user2], 3)
+      Poison.decode!(Poison.encode!(game_board)) |> should(eq %{
+        "id" => game_board.id,
+        "board_lines" => [
+          [nil, nil],
+          [nil, nil, nil],
+          [nil, nil],
+          [nil, nil, nil],
+          [nil, nil]
+        ],
+        "board_fills" => [
+          [nil, nil],
+          [nil, nil]
+        ],
+        "users" => [
+          %{
+            "id" => user1.id,
+            "handle" => user1.handle,
+            "email" => user1.email
+          },
+          %{
+            "id" => user2.id,
+            "handle" => user2.handle,
+            "email" => user2.email
+          }
+        ],
+        "next_turn_user" => %{
+          "id" => user1.id,
+          "handle" => user1.handle,
+          "email" => user1.email
+        }
+      })
     end
   end
 end
