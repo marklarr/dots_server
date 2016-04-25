@@ -1,3 +1,22 @@
+defimpl Poison.Encoder, for: DotsServer.GameBoard do
+  def encode(%{__struct__: _} = struct, options) do
+    map = struct
+          |> DotsServer.Repo.preload([:users, :next_turn_user])
+          |> Map.from_struct
+          |> sanitize_map
+          |> Map.take([:id, :users, :next_turn_user])
+          |> Map.merge(%{
+               board_lines: struct.board_lines_data |> DotsServer.BoardLines.parse,
+               board_fills: struct.board_fills_data |> DotsServer.BoardFills.parse,
+             })
+    Poison.Encoder.Map.encode(map, options)
+  end
+
+  defp sanitize_map(map) do
+    Map.drop(map, [:__meta__, :__struct__])
+  end
+end
+
 defmodule DotsServer.GameBoard do
   use DotsServer.Web, :model
 
