@@ -27,13 +27,3 @@ import_config "#{Mix.env}.exs"
 config :phoenix, :generators,
   migration: true,
   binary_id: false
-
-config :addict,
-  secret_key: "243262243132242f527158497932572f49472e2f4c6d46774565616a4f",
-  extra_validation: fn ({valid, errors}, user_params) -> {valid, errors} end, # define extra validation here
-  user_schema: DotsServer.User,
-  repo: DotsServer.Repo,
-  from_email: "no-reply@example.com", # CHANGE THIS
-  mailgun_domain: "fillme",
-  mailgun_key: "fillme",
-  mail_service: :mailgun
