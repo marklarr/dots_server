@@ -20,7 +20,7 @@ defmodule DotsServer.Mixfile do
   def application do
     [mod: {DotsServer, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :ex_machina]]
+                    :phoenix_ecto, :postgrex, :ex_machina, :comeonin]]
   end
 
   # Specifies which paths to compile per environment.
@@ -33,6 +33,7 @@ defmodule DotsServer.Mixfile do
   defp deps do
     [{:phoenix, "~> 1.1.4"},
      {:postgrex, ">= 0.0.0"},
+     {:comeonin, "~> 2.4"},
      {:phoenix_ecto, "~> 2.0"},
      {:phoenix_html, "~> 2.4"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
