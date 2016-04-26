@@ -49,6 +49,8 @@ defmodule DotsServer.GameBoardChannelTest do
               ],
               "users" => Poison.decode!(Poison.encode!(game_board.users)),
               "next_turn_user" => Poison.decode!(Poison.encode!(user2)),
+              "game_over" => false,
+              "winner_user" => nil,
             }
           }
 

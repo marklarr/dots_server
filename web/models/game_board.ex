@@ -1,13 +1,15 @@
 defimpl Poison.Encoder, for: DotsServer.GameBoard do
-  def encode(%{__struct__: _} = struct, options) do
-    map = struct
+  def encode(%{__struct__: _} = game_board, options) do
+    map = game_board
           |> DotsServer.Repo.preload([:users, :next_turn_user])
           |> Map.from_struct
           |> sanitize_map
           |> Map.take([:id, :users, :next_turn_user])
           |> Map.merge(%{
-               board_lines: struct.board_lines_data |> DotsServer.BoardLines.parse,
-               board_fills: struct.board_fills_data |> DotsServer.BoardFills.parse,
+               board_lines: game_board.board_lines_data |> DotsServer.BoardLines.parse,
+               board_fills: game_board.board_fills_data |> DotsServer.BoardFills.parse,
+               winner_user: game_board |> DotsServer.GameBoard.winner_user,
+               game_over: game_board |> DotsServer.GameBoard.game_over?
              })
     Poison.Encoder.Map.encode(map, options)
   end

@@ -124,7 +124,7 @@ defmodule DotsServer.GameBoardSpec do
   end
 
   describe "encoding with Poison" do
-    it "encodes the id, users, board_fills, board_lines, and next_turn_user" do
+    it "encodes the id, users, board_fills, board_lines, winner_user, game_over, and next_turn_user" do
       game_board = GameEngine.new_game([user1, user2], 3)
       Poison.decode!(Poison.encode!(game_board)) |> should(eq %{
         "id" => game_board.id,
@@ -155,7 +155,9 @@ defmodule DotsServer.GameBoardSpec do
           "id" => user1.id,
           "handle" => user1.handle,
           "email" => user1.email
-        }
+        },
+        "game_over" => false,
+        "winner_user" => nil
       })
     end
   end
